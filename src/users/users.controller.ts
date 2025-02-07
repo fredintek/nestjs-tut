@@ -13,8 +13,14 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { GetUsersParamsDto } from './dtos/get-users-param.dto';
 import { PatchUserDto } from './dtos/patch-users.dto';
 import { UsersService } from './providers/users.service';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  User404ResponseDto,
+  UserOKResponseDto,
+} from './dtos/user-response.dto';
 
 @Controller('users')
+@ApiTags('Users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
@@ -27,6 +33,35 @@ export class UsersController {
   }
 
   @Get('/:id')
+  @ApiOperation({
+    summary:
+      'Fetches a specific user from list of registered users on the application',
+    description: 'Get a single user by their ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User fetched successfully',
+    type: UserOKResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    type: User404ResponseDto,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: 'The number of entries returned per query',
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: 'The position of the page number you want to retrieve',
+    example: 2,
+  })
   public getOneUser(
     @Param() getUsersParamsDto: GetUsersParamsDto,
     @Query('limit', new DefaultValuePipe(1), ParseIntPipe) limit: number,
