@@ -33,8 +33,7 @@ export class PostsController {
     type: CreatePostsResponse,
   })
   public createPost(@Body() createPostDto: CreatePostDto) {
-    console.log('createPostDto', createPostDto);
-    return 'new post created successfully';
+    return this.postService.create(createPostDto);
   }
 
   @Patch()

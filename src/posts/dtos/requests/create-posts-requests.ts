@@ -2,7 +2,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsDate,
   IsEnum,
   IsISO8601,
   IsJSON,
@@ -11,9 +10,11 @@ import {
   IsString,
   IsUrl,
   Matches,
+  MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
+import { MetaOptionsType } from 'src/meta-options/dtos/create-posts-meta-options.dto';
 
 export enum postTypeEnum {
   POST = 'post',
@@ -29,15 +30,6 @@ export enum statusEnum {
   REVIEW = 'review',
 }
 
-export class MetaOptionsType {
-  @IsString()
-  @IsNotEmpty()
-  key: string;
-
-  @IsNotEmpty()
-  value: any;
-}
-
 export class CreatePostDto {
   @ApiProperty({
     description: 'This is the title for the blog posts',
@@ -45,6 +37,7 @@ export class CreatePostDto {
   })
   @IsString()
   @MinLength(4)
+  @MaxLength(512)
   @IsNotEmpty()
   title: string;
 
@@ -63,6 +56,7 @@ export class CreatePostDto {
   })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(256)
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message:
       'slug must be all lowercase and words must be seperated with hyphens',
@@ -99,6 +93,7 @@ export class CreatePostDto {
   })
   @IsOptional()
   @IsUrl()
+  @MaxLength(1024)
   featuredImageUrl: string;
 
   @ApiProperty({
@@ -106,6 +101,7 @@ export class CreatePostDto {
     example: '2022-01-01T00:00:00Z',
   })
   @IsISO8601()
+  @IsOptional()
   publishOn: Date;
 
   @ApiProperty({
@@ -124,24 +120,16 @@ export class CreatePostDto {
     items: {
       type: 'object',
       properties: {
-        key: {
-          type: 'string',
-          description:
-            'The key can be any string identifier for your metaoptions',
-          example: 'sidebarEnabled',
-        },
-        value: {
-          type: 'any',
-          description: 'Any value that you want to save to the key',
-          example: true,
+        metavalue: {
+          type: 'json',
+          description: 'The metavalue is a JSON string',
+          example: '{"sidebarEnabled": true, "footerActive": true}',
         },
       },
-      required: ['key', 'value'],
     },
   })
   @IsOptional()
-  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => MetaOptionsType)
-  metaOptions: MetaOptionsType[];
+  metaOptions: MetaOptionsType | undefined;
 }
