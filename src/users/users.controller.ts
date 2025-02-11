@@ -67,7 +67,7 @@ export class UsersController {
     @Query('limit', new DefaultValuePipe(1), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
   ) {
-    return this.userService.findOneUser(getUsersParamsDto);
+    return this.userService.findOneUser(getUsersParamsDto.id as number);
   }
 
   @Post()

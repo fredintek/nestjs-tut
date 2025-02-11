@@ -24,46 +24,42 @@ export class PostsService {
     private metaOptionsRepository: Repository<MetaOptions>,
   ) {}
 
-  public findAllUserPosts(userId: number) {
-    const user = this.userService.findOneUser({ id: userId });
+  public async findAllUserPosts(userId: number) {
+    const user = this.userService.findOneUser(userId);
 
-    return [
-      {
-        id: 1,
-        title: 'Post 1',
-        content: 'Content 1',
-      },
-      {
-        id: 2,
-        title: 'Post 2',
-        content: 'Content 2',
-      },
-    ];
+    let posts = await this.postsRepository.find();
+
+    return posts;
   }
 
   /**
    * Create new post method
    */
+  public async create(createPostDto: CreatePostDto) {
+    // find author from database based on authorId
+    let author = await this.userService.findOneUser(createPostDto.authorId);
+    console.log('author', author);
 
-  public async create(@Body() createPostDto: CreatePostDto) {
-    // create metaoptions
-    let metaOptions = createPostDto?.metaOptions
-      ? this.metaOptionsRepository.create(createPostDto.metaOptions)
-      : null;
-
-    if (metaOptions) {
-      await this.metaOptionsRepository.save(metaOptions);
-    }
-
+    let post: Posts;
     // create post
-    let post = this.postsRepository.create(createPostDto);
-
-    // add metaoptions to the post
-    if (metaOptions) {
-      post.metaOptions = metaOptions;
+    if (author) {
+      post = this.postsRepository.create({ ...createPostDto, author });
+    } else {
+      post = this.postsRepository.create({ ...createPostDto });
     }
 
     // return post
     return await this.postsRepository.save(post);
+  }
+
+  public async deletePost(postId: number) {
+    // delete the post
+    await this.postsRepository.delete(postId);
+
+    // confirmation
+    return {
+      message: 'Post deleted successfully',
+      postId,
+    };
   }
 }

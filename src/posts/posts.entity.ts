@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -10,6 +11,7 @@ import {
   statusEnum,
 } from './dtos/requests/create-posts-requests';
 import { MetaOptions } from 'src/meta-options/metaOptions.entity';
+import { Users } from 'src/users/users.entity';
 
 @Entity()
 export class Posts {
@@ -77,14 +79,12 @@ export class Posts {
   })
   publishOn: Date;
 
-  @OneToOne(() => MetaOptions)
-  @JoinColumn()
+  @OneToOne(() => MetaOptions, (metaOptions) => metaOptions.post, {
+    cascade: true,
+    eager: true,
+  })
   metaOptions: MetaOptions;
 
-  // TODO: WORK ON THESE AS RELATIONSHIPS
-  // @Column()
-  // tags: string[];
-
-  // @Column()
-  // metaOptions: MetaOptionsType[];
+  @ManyToOne(() => Users, (user) => user.posts, { eager: true })
+  author: Users;
 }

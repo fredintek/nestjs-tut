@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
+  IsInt,
   IsISO8601,
   IsJSON,
   IsNotEmpty,
@@ -115,7 +116,7 @@ export class CreatePostDto {
   tags: string[];
 
   @ApiPropertyOptional({
-    type: 'array',
+    type: 'string',
     required: false,
     items: {
       type: 'object',
@@ -132,4 +133,13 @@ export class CreatePostDto {
   @ValidateNested({ each: true })
   @Type(() => MetaOptionsType)
   metaOptions: MetaOptionsType | undefined;
+
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    type: 'integer',
+    required: true,
+    example: 123,
+  })
+  authorId: number;
 }

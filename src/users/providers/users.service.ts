@@ -1,5 +1,4 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { GetUsersParamsDto } from '../dtos/get-users-param.dto';
 import { AuthService } from 'src/auth/providers/auth.service';
 import { Repository } from 'typeorm';
 import { Users } from '../users.entity';
@@ -31,12 +30,8 @@ export class UsersService {
     ];
   }
 
-  public findOneUser(getUsersParamsDto: GetUsersParamsDto) {
-    return {
-      id: 1,
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-    };
+  public async findOneUser(id: number) {
+    return await this.usersRepository.findOneBy({ id });
   }
 
   public async createUser(createUserDto: CreateUserDto) {

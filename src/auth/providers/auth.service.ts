@@ -10,7 +10,7 @@ export class AuthService {
 
   public login(email: string, password: string) {
     // check if user exists
-    const user = this.userService.findOneUser({ id: 123 });
+    const user = this.userService.findOneUser(1);
 
     return 'SAMPLE_TOKEN';
   }
