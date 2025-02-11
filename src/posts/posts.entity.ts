@@ -1,7 +1,8 @@
 import {
   Column,
   Entity,
-  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -12,6 +13,7 @@ import {
 } from './dtos/requests/create-posts-requests';
 import { MetaOptions } from 'src/meta-options/metaOptions.entity';
 import { Users } from 'src/users/users.entity';
+import { Tags } from 'src/tags/tags.entity';
 
 @Entity()
 export class Posts {
@@ -86,5 +88,9 @@ export class Posts {
   metaOptions: MetaOptions;
 
   @ManyToOne(() => Users, (user) => user.posts, { eager: true })
-  author: Users;
+  author?: Users;
+
+  @ManyToMany(() => Tags, (tag) => tag.posts)
+  @JoinTable()
+  tags?: Tags[];
 }

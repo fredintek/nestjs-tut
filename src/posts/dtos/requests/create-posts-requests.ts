@@ -16,6 +16,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { MetaOptionsType } from 'src/meta-options/dtos/create-posts-meta-options.dto';
+import { Tags } from 'src/tags/tags.entity';
 
 export enum postTypeEnum {
   POST = 'post',
@@ -105,16 +106,6 @@ export class CreatePostDto {
   @IsOptional()
   publishOn: Date;
 
-  @ApiProperty({
-    description: 'Array of tags for your blog post',
-    example: ['tag1', 'tag2', 'tag3'],
-  })
-  @IsNotEmpty()
-  @IsArray()
-  @IsString({ each: true })
-  @MinLength(3, { each: true })
-  tags: string[];
-
   @ApiPropertyOptional({
     type: 'string',
     required: false,
@@ -142,4 +133,13 @@ export class CreatePostDto {
     example: 123,
   })
   authorId: number;
+
+  @ApiProperty({
+    description: "Array of ID's of tags for your blog post",
+    example: [1, 2, 3],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  tags: number[];
 }

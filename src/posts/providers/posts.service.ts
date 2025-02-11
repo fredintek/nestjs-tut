@@ -5,11 +5,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from '../dtos/requests/create-posts-requests';
 import { MetaOptions } from 'src/meta-options/metaOptions.entity';
+import { Users } from 'src/users/users.entity';
+import { TagsService } from 'src/tags/providers/tags.service';
+import { PatchPostDto } from '../dtos/requests/patch-posts-requests';
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly userService: UsersService,
+
+    private readonly tagsService: TagsService,
 
     /**
      * Post repository injection
@@ -27,7 +32,7 @@ export class PostsService {
   public async findAllUserPosts(userId: number) {
     const user = this.userService.findOneUser(userId);
 
-    let posts = await this.postsRepository.find();
+    let posts = await this.postsRepository.find({ relations: { tags: true } });
 
     return posts;
   }
@@ -37,16 +42,12 @@ export class PostsService {
    */
   public async create(createPostDto: CreatePostDto) {
     // find author from database based on authorId
-    let author = await this.userService.findOneUser(createPostDto.authorId);
-    console.log('author', author);
+    let author =
+      (await this.userService.findOneUser(createPostDto.authorId)) || undefined;
 
-    let post: Posts;
-    // create post
-    if (author) {
-      post = this.postsRepository.create({ ...createPostDto, author });
-    } else {
-      post = this.postsRepository.create({ ...createPostDto });
-    }
+    let tags = await this.tagsService.findMultipleTags(createPostDto.tags);
+
+    let post = this.postsRepository.create({ ...createPostDto, author, tags });
 
     // return post
     return await this.postsRepository.save(post);
@@ -61,5 +62,38 @@ export class PostsService {
       message: 'Post deleted successfully',
       postId,
     };
+  }
+
+  public async updatePost(patchPostDto: PatchPostDto) {
+    // find the tags
+    let tags = await this.tagsService.findMultipleTags(
+      patchPostDto.tags as number[],
+    );
+
+    // find the post
+    let posts = await this.postsRepository.findOneBy({
+      id: patchPostDto.id,
+    });
+
+    if (posts) {
+      // update the properties of the post
+      posts.title = patchPostDto.title ?? posts?.title;
+      posts.postType = patchPostDto.postType ?? posts?.postType;
+      posts.slug = patchPostDto.slug ?? posts?.slug;
+      posts.status = patchPostDto.status ?? posts?.status;
+      posts.content = patchPostDto.content ?? posts?.content;
+      posts.schema = patchPostDto.schema ?? posts?.schema;
+      posts.featuredImageUrl =
+        patchPostDto.featuredImageUrl ?? posts?.featuredImageUrl;
+      posts.publishOn = patchPostDto.publishOn ?? posts?.publishOn;
+
+      // assign new tags
+      posts.tags = tags;
+
+      // save the post and return
+      return await this.postsRepository.save(posts);
+    } else {
+      throw new Error('Post not found');
+    }
   }
 }
