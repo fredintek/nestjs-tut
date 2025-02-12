@@ -15,6 +15,8 @@ import { Users } from 'src/users/users.entity';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDto } from '../dtos/requests/patch-posts-requests';
 import { Tags } from 'src/tags/tags.entity';
+import { GetPostsDto } from '../dtos/requests/get-posts-base.dto';
+import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 
 @Injectable()
 export class PostsService {
@@ -34,12 +36,16 @@ export class PostsService {
      */
     @InjectRepository(MetaOptions)
     private metaOptionsRepository: Repository<MetaOptions>,
+
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
-  public async findAllUserPosts(userId: number) {
-    const user = this.userService.findOneUser(userId);
-
-    let posts = await this.postsRepository.find({ relations: { tags: true } });
+  public async findAllUserPosts(postQuery: GetPostsDto, userId: number) {
+    let posts = await this.paginationProvider.paginateQuery<Posts>(
+      { limit: postQuery.limit, page: postQuery.page },
+      this.postsRepository,
+      { relations: ['tags'] },
+    );
 
     return posts;
   }

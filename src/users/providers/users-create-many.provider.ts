@@ -1,10 +1,8 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   RequestTimeoutException,
 } from '@nestjs/common';
-import { CreateUserDto } from '../dtos/create-user.dto';
 import { Users } from '../users.entity';
 import { DataSource } from 'typeorm';
 import { CreateManyUsersDto } from '../dtos/create-many-users.dto';
