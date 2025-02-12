@@ -1,4 +1,10 @@
-import { Body, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/providers/users.service';
 import { Posts } from '../posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +14,7 @@ import { MetaOptions } from 'src/meta-options/metaOptions.entity';
 import { Users } from 'src/users/users.entity';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDto } from '../dtos/requests/patch-posts-requests';
+import { Tags } from 'src/tags/tags.entity';
 
 @Injectable()
 export class PostsService {
@@ -65,35 +72,52 @@ export class PostsService {
   }
 
   public async updatePost(patchPostDto: PatchPostDto) {
-    // find the tags
-    let tags = await this.tagsService.findMultipleTags(
-      patchPostDto.tags as number[],
-    );
+    try {
+      // Find the post
+      const post = await this.postsRepository.findOne({
+        where: {
+          id: patchPostDto.id,
+        },
+        relations: ['tags'],
+      });
 
-    // find the post
-    let posts = await this.postsRepository.findOneBy({
-      id: patchPostDto.id,
-    });
+      if (!post) return new NotFoundException('No posts found').getResponse();
 
-    if (posts) {
-      // update the properties of the post
-      posts.title = patchPostDto.title ?? posts?.title;
-      posts.postType = patchPostDto.postType ?? posts?.postType;
-      posts.slug = patchPostDto.slug ?? posts?.slug;
-      posts.status = patchPostDto.status ?? posts?.status;
-      posts.content = patchPostDto.content ?? posts?.content;
-      posts.schema = patchPostDto.schema ?? posts?.schema;
-      posts.featuredImageUrl =
-        patchPostDto.featuredImageUrl ?? posts?.featuredImageUrl;
-      posts.publishOn = patchPostDto.publishOn ?? posts?.publishOn;
+      let newTags: Tags[] | undefined;
 
-      // assign new tags
-      posts.tags = tags;
+      if ((patchPostDto.tags?.length as number) > 0) {
+        // Find tags in a single query
+        newTags = await this.tagsService.findMultipleTags(
+          patchPostDto.tags as number[],
+        );
 
-      // save the post and return
-      return await this.postsRepository.save(posts);
-    } else {
-      throw new Error('Post not found');
+        if (newTags.length !== patchPostDto.tags?.length)
+          return new BadRequestException('Invalid tag detected');
+      } else {
+        newTags = post.tags;
+      }
+
+      // Update only the fields provided in patchPostDto
+      Object.assign(post, {
+        title: patchPostDto.title ?? post.title,
+        postType: patchPostDto.postType ?? post.postType,
+        slug: patchPostDto.slug ?? post.slug,
+        status: patchPostDto.status ?? post.status,
+        content: patchPostDto.content ?? post.content,
+        schema: patchPostDto.schema ?? post.schema,
+        featuredImageUrl:
+          patchPostDto.featuredImageUrl ?? post.featuredImageUrl,
+        publishOn: patchPostDto.publishOn ?? post.publishOn,
+        tags: newTags ?? post.tags,
+      });
+
+      // Save and return the updated post
+      return await this.postsRepository.save(post);
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to process your request at the moment, please try again later',
+        { description: 'Error connecting to the database' },
+      );
     }
   }
 }

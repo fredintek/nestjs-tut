@@ -43,7 +43,6 @@ export class PostsController {
     summary: 'This endpoint updates a blog post',
   })
   public updatePost(@Body() patchPostDto: PatchPostDto) {
-    console.log('patchPostDto', patchPostDto);
     return this.postService.updatePost(patchPostDto);
   }
 
