@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Users } from '../users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import profileConfig from '../config/profile.config';
 
 @Injectable()
 export class UsersService {
@@ -13,9 +15,16 @@ export class UsersService {
 
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+
+    private readonly configService: ConfigService,
+
+    @Inject(profileConfig.KEY)
+    private readonly profileConfiguration: ConfigType<typeof profileConfig>,
   ) {}
 
   public findAllUsers(limit: number, page: number) {
+    console.log('APIKEY', this.profileConfiguration.apiKey);
+    console.log('NORMAL', this.configService.get('database.port'));
     return [
       {
         id: 1,
