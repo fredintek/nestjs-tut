@@ -18,6 +18,7 @@ import {
   User404ResponseDto,
   UserOKResponseDto,
 } from './dtos/user-response.dto';
+import { CreateManyUsersDto } from './dtos/create-many-users.dto';
 
 @Controller('users')
 @ApiTags('Users')
@@ -72,7 +73,7 @@ export class UsersController {
 
   @Post()
   public createUsers(@Body() createUserDto: CreateUserDto) {
-    console.log('body', createUserDto);
+    // console.log('body', createUserDto);
     return this.userService.createUser(createUserDto);
   }
 
@@ -80,5 +81,10 @@ export class UsersController {
   public updateUsers(@Body() patchUserDto: PatchUserDto) {
     console.log('body', patchUserDto);
     return 'Update Users here';
+  }
+
+  @Post('create-many')
+  public createMany(@Body() createManyUsersDto: CreateManyUsersDto) {
+    return this.userService.createMany(createManyUsersDto);
   }
 }
