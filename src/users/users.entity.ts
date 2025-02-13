@@ -1,5 +1,12 @@
 import { Posts } from 'src/posts/posts.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Users {
@@ -37,4 +44,13 @@ export class Users {
 
   @OneToMany(() => Posts, (post) => post.author)
   posts: Posts[];
+
+  // hooks
+  @BeforeInsert()
+  @BeforeUpdate()
+  lowercaseEmail() {
+    if (this.email) {
+      this.email = this.email.toLowerCase();
+    }
+  }
 }

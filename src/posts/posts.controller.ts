@@ -21,15 +21,10 @@ import { GetPostsDto } from './dtos/requests/get-posts-base.dto';
 export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
-  @Get('/:userId')
-  public getAllPosts(
-    @Param('userId', ParseIntPipe) userId: number,
-    @Query() postQuery: GetPostsDto,
-  ) {
-    console.log('userId', userId);
-    console.log('postQuery', postQuery);
-
-    return this.postService.findAllUserPosts(postQuery, userId);
+  @Get('')
+  public getAllPosts(@Query() postQuery: GetPostsDto) {
+    // console.log('postQuery', postQuery);
+    return this.postService.findAllPosts(postQuery);
   }
 
   @Post()

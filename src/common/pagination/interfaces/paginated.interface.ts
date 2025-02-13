@@ -1,16 +1,16 @@
 export interface Paginated<T> {
   data: T[];
-  meta: {
+  metadata: {
     itemsPerPage: number;
     totalItems: number;
     currentPage: number;
     totalPages: number;
   };
-  links: {
-    first: string;
-    prev: string;
-    next: string;
-    last: string;
-    current: string;
+  pagination: {
+    firstPage: number;
+    prevPage: boolean;
+    nextPage: boolean;
+    lastPage: number;
+    currentPage: number;
   };
 }

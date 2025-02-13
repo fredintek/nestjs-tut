@@ -11,7 +11,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PaginationModule } from './common/pagination/pagination.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
-import environmentValidation from './config/environment.validation';
+import jwtConfig from './config/jwt.config';
+import { JwtModule } from '@nestjs/jwt';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -22,6 +23,11 @@ const ENV = process.env.NODE_ENV;
     TagsModule,
     MetaOptionsModule,
     PaginationModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: !ENV ? '.env.production' : `.env.${ENV}`,
+      load: [appConfig, databaseConfig, jwtConfig],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -36,11 +42,18 @@ const ENV = process.env.NODE_ENV;
         database: configService.get('database.database'),
       }),
     }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: !ENV ? '.env.production' : `.env.${ENV}`,
-      load: [appConfig, databaseConfig],
-      validationSchema: environmentValidation,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('jwt.secret'),
+        signOptions: {
+          expiresIn: configService.get<string>('jwt.expiresIn'),
+          issuer: configService.get<string>('jwt.issuer'),
+          audience: configService.get<string>('jwt.audience'),
+        },
+      }),
+      global: true,
     }),
   ],
   controllers: [AppController],

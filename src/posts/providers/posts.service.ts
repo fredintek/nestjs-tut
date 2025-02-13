@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Body,
   Injectable,
   NotFoundException,
   RequestTimeoutException,
@@ -10,13 +9,12 @@ import { Posts } from '../posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from '../dtos/requests/create-posts-requests';
-import { MetaOptions } from 'src/meta-options/metaOptions.entity';
-import { Users } from 'src/users/users.entity';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDto } from '../dtos/requests/patch-posts-requests';
 import { Tags } from 'src/tags/tags.entity';
 import { GetPostsDto } from '../dtos/requests/get-posts-base.dto';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
+import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 
 @Injectable()
 export class PostsService {
@@ -31,22 +29,14 @@ export class PostsService {
     @InjectRepository(Posts)
     private postsRepository: Repository<Posts>,
 
-    /**
-     * Metaoptions repository injection
-     */
-    @InjectRepository(MetaOptions)
-    private metaOptionsRepository: Repository<MetaOptions>,
-
     private readonly paginationProvider: PaginationProvider,
   ) {}
 
-  public async findAllUserPosts(postQuery: GetPostsDto, userId: number) {
+  public async findAllPosts(postQuery: GetPostsDto): Promise<Paginated<Posts>> {
     let posts = await this.paginationProvider.paginateQuery<Posts>(
       { limit: postQuery.limit, page: postQuery.page },
       this.postsRepository,
-      { relations: ['tags'] },
     );
-
     return posts;
   }
 

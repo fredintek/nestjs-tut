@@ -43,6 +43,7 @@ export class UsersCreateManyProvider {
       });
     } finally {
       try {
+        // release connection
         await queryRunner.release();
       } catch (error) {
         throw new RequestTimeoutException(
@@ -50,7 +51,6 @@ export class UsersCreateManyProvider {
           { description: String(error) },
         );
       }
-      // release connection
     }
 
     return {
