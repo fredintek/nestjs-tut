@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   ParseIntPipe,
   Patch,
   Post,
@@ -15,6 +14,8 @@ import { CreatePostDto } from './dtos/requests/create-posts-requests';
 import { CreatePostsResponse } from './dtos/responses/create-posts-response';
 import { PatchPostDto } from './dtos/requests/patch-posts-requests';
 import { GetPostsDto } from './dtos/requests/get-posts-base.dto';
+import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
+import { ActiveUserInterface } from 'src/auth/interfaces/active-user.interface';
 
 @Controller('posts')
 @ApiTags('Posts')
@@ -36,7 +37,11 @@ export class PostsController {
     description: 'A new post has been created.',
     type: CreatePostsResponse,
   })
-  public createPost(@Body() createPostDto: CreatePostDto) {
+  public createPost(
+    @Body() createPostDto: CreatePostDto,
+    @ActiveUser('email') activeUser: ActiveUserInterface,
+  ) {
+    console.log('activeUser', activeUser);
     return this.postService.create(createPostDto);
   }
 

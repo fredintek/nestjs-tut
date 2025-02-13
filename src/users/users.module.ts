@@ -9,6 +9,8 @@ import { UsersCreateManyProvider } from './providers/users-create-many.provider'
 import { CreateUserProvider } from './providers/create-user.provider';
 import { FindOneUserByEmailProvider } from './providers/find-one-user-by-email.provider';
 import profileConfig from './config/profile.config';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guard';
 
 @Module({
   controllers: [UsersController],

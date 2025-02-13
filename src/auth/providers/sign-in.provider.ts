@@ -10,6 +10,7 @@ import { UsersService } from 'src/users/providers/users.service';
 import { HashingProvider } from './hashing.provider';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { ActiveUserInterface } from '../interfaces/active-user.interface';
 
 @Injectable()
 export class SignInProvider {
@@ -60,7 +61,7 @@ export class SignInProvider {
 
     // Send confirmation
     const accessToken = await this.jwtService.signAsync(
-      { sub: user.id, email: user.email },
+      { sub: user.id, email: user.email } as ActiveUserInterface,
       {
         expiresIn: this.configService.get<string>('jwt.expiresIn'),
         issuer: this.configService.get<string>('jwt.issuer'),
