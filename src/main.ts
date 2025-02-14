@@ -35,6 +35,9 @@ async function bootstrap() {
 
   SwaggerModule.setup('nest-js-api', app, documentFactory);
 
+  // Enable cors
+  app.enableCors();
+
   await app.listen(process.env.PORT ?? 5050);
 }
 bootstrap();

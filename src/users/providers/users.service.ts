@@ -19,6 +19,7 @@ import { UsersCreateManyProvider } from './users-create-many.provider';
 import { CreateManyUsersDto } from '../dtos/create-many-users.dto';
 import { CreateUserProvider } from './create-user.provider';
 import { FindOneUserByEmailProvider } from './find-one-user-by-email.provider';
+import { FindOneByGoogleIdProvider } from './find-one-by-google-id.provider';
 
 @Injectable()
 export class UsersService {
@@ -44,6 +45,8 @@ export class UsersService {
     private readonly createUserProvider: CreateUserProvider,
 
     private readonly findOneUserByEmailProvider: FindOneUserByEmailProvider,
+
+    private readonly findOneByGoogleIdProvider: FindOneByGoogleIdProvider,
   ) {}
 
   public findAllUsers(limit: number, page: number) {
@@ -87,5 +90,9 @@ export class UsersService {
 
   public findOneUserByEmail(email: string) {
     return this.findOneUserByEmailProvider.findOneUserByEmail(email);
+  }
+
+  public findOneByGoogleId(googleId: string) {
+    return this.findOneByGoogleIdProvider.findOneByGoogleId(googleId);
   }
 }
