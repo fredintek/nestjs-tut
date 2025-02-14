@@ -29,6 +29,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Auth(AuthType.None)
   public async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    // getting refresh token
     return this.authService.refreshTokens(refreshTokenDto);
   }
 }
