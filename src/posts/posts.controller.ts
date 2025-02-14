@@ -39,10 +39,10 @@ export class PostsController {
   })
   public createPost(
     @Body() createPostDto: CreatePostDto,
-    @ActiveUser('email') activeUser: ActiveUserInterface,
+    @ActiveUser() activeUser: ActiveUserInterface,
   ) {
-    console.log('activeUser', activeUser);
-    return this.postService.create(createPostDto);
+    // console.log('activeUser', activeUser);
+    return this.postService.create(createPostDto, activeUser);
   }
 
   @Patch()

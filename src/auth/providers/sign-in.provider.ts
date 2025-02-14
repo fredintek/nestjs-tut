@@ -8,9 +8,7 @@ import {
 import { SignInDto } from '../dtos/sigin.dto';
 import { UsersService } from 'src/users/providers/users.service';
 import { HashingProvider } from './hashing.provider';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { ActiveUserInterface } from '../interfaces/active-user.interface';
+import { GenerateTokensProvider } from './generate-tokens.provider';
 
 @Injectable()
 export class SignInProvider {
@@ -27,14 +25,9 @@ export class SignInProvider {
     private readonly hashingProvider: HashingProvider,
 
     /**
-     * Inject JwtService
-     */
-    private readonly jwtService: JwtService,
-
-    /**
      * Inject GlobalConfiguration
      */
-    private readonly configService: ConfigService,
+    private readonly generateTokensProvider: GenerateTokensProvider,
   ) {}
 
   public async signIn(signInDto: SignInDto) {
@@ -59,18 +52,7 @@ export class SignInProvider {
       throw new UnauthorizedException('Invalid password');
     }
 
-    // Send confirmation
-    const accessToken = await this.jwtService.signAsync(
-      { sub: user.id, email: user.email } as ActiveUserInterface,
-      {
-        expiresIn: this.configService.get<string>('jwt.expiresIn'),
-        issuer: this.configService.get<string>('jwt.issuer'),
-        audience: this.configService.get<string>('jwt.audience'),
-      },
-    );
-
-    return {
-      accessToken,
-    };
+    // Generate tokens and send
+    return await this.generateTokensProvider.generateTokens(user);
   }
 }

@@ -126,14 +126,14 @@ export class CreatePostDto {
   @Type(() => MetaOptionsType)
   metaOptions: MetaOptionsType | undefined;
 
-  @IsInt()
-  @IsNotEmpty()
-  @ApiProperty({
-    type: 'integer',
-    required: true,
-    example: 123,
-  })
-  authorId: number;
+  // @IsInt()
+  // @IsNotEmpty()
+  // @ApiProperty({
+  //   type: 'integer',
+  //   required: true,
+  //   example: 123,
+  // })
+  // authorId: number;
 
   @ApiProperty({
     description: "Array of ID's of tags for your blog post",
